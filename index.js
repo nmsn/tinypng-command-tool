@@ -48,7 +48,7 @@ const getFileList = (folder) => {
       const pathName = path.join(folder, file);
       fs.stat(pathName, (err, stats) => {
         if (stats.isDirectory() && isRecursion) {
-          getFileList(filePath + "/");
+          getFileList(pathName + "/");
         } else {
           filterFile(pathName);
         }
@@ -73,13 +73,8 @@ const filterFile = (filePath) => {
       // 通过 X-Forwarded-For 头部伪造客户端IP
       const options = { ...defaultOptions };
       options.headers["X-Forwarded-For"] = getRandomIP();
-
       fileUpload(filePath, options); // console.log('可以压缩：' + filePath);
     }
-
-    // if (stats.isDirectory() && isRecursion) {
-    //   getFileList(filePath + "/");
-    // }
   });
 };
 
@@ -134,13 +129,9 @@ const fileUpdate = (imgPath, obj) => {
   if (isOverwrite) {
     newImgPath = imgPath;
   } else {
-    const outputDir = path.join(cwd, "output");
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir);
-    }
-
-    // TODO 当前 imgPath 存在时，如何处理
-    newImgPath = path.join(cwd, "output", path.basename(imgPath));
+    const extname= path.extname(imgPath); // eg: '.jpg'
+    const filename = path.basename(imgPath, extname);
+    newImgPath = imgPath.replace(filename, `${filename}-compressed`);
   }
 
 
@@ -149,3 +140,4 @@ const fileUpdate = (imgPath, obj) => {
 };
 
 getFileList(root);
+
