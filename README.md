@@ -11,9 +11,7 @@ npm i tinypng-command-tool -g
 
 然后，在命令行进入到你想要压缩图片的目录，执行：
 ```bash
-tinypng-command-tool -r -c
-# -r 对目录下文件件递归处理
-# -c 是否覆盖源文件
+tpc
 ```
 
 ## 项目背景
@@ -39,7 +37,7 @@ npm i tinypng-command-tool -g
 ## 使用
 
 ```bash
-tinypng-command-tool -r -c
+tpc
 ```
 
 ## 相关项目

@@ -20,7 +20,6 @@ const defaultOptions = {
 };
 
 const startCompress = (folder) => {
-  console.log(global);
   fs.readdir(folder, (err, files) => {
     if (err) console.error(err);
     files.forEach((file) => {
@@ -29,7 +28,6 @@ const startCompress = (folder) => {
         if (stats.isDirectory() && global.isRecursion) {
           startCompress(pathName + "/");
         } else {
-          console.log(pathName);
           filterFile(pathName);
         }
       });
