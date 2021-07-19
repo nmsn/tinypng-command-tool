@@ -13,8 +13,12 @@ const isOverwrite = params.includes("-c");
 
 const root = cwd;
 
-const exts = [".jpg", ".png"];
-const max = 5200000; // 5MB == 5242848.754299136
+const exts = [".jpg", ".png", '.jpeg'];
+const max = 100 * 5200000; // 5MB == 5242848.754299136
+
+const mb2b = (num) => {
+  return num * 1024 * 1024;
+};
 
 const defaultOptions = {
   method: "POST",
@@ -41,20 +45,31 @@ const getFileList = (folder) => {
   fs.readdir(folder, (err, files) => {
     if (err) console.error(err);
     files.forEach((file) => {
-      filterFile(path.join(folder, file));
+      const pathName = path.join(folder, file);
+      fs.stat(pathName, (err, stats) => {
+        if (stats.isDirectory() && isRecursion) {
+          getFileList(filePath + "/");
+        } else {
+          filterFile(pathName);
+        }
+      });
     });
   });
+};
+
+const isSuitableFile = (stats, filePath) => {
+  return (
+    stats.isFile() &&
+    // 必须是文件，小于5MB，后缀 jpg||png
+    stats.size <= max &&
+    exts.includes(path.extname(filePath))
+  );
 };
 
 const filterFile = (filePath) => {
   fs.stat(filePath, (err, stats) => {
     if (err) return console.error(err);
-    if (
-      stats.isFile() &&
-      // 必须是文件，小于5MB，后缀 jpg||png
-      stats.size <= max &&
-      exts.includes(path.extname(filePath))
-    ) {
+    if (isSuitableFile(stats, filePath)) {
       // 通过 X-Forwarded-For 头部伪造客户端IP
       const options = { ...defaultOptions };
       options.headers["X-Forwarded-For"] = getRandomIP();
@@ -62,9 +77,9 @@ const filterFile = (filePath) => {
       fileUpload(filePath, options); // console.log('可以压缩：' + filePath);
     }
 
-    if (stats.isDirectory() && isRecursion) {
-      getFileList(filePath + "/");
-    }
+    // if (stats.isDirectory() && isRecursion) {
+    //   getFileList(filePath + "/");
+    // }
   });
 };
 
@@ -90,23 +105,7 @@ const fileUpload = (imgPath, options) => {
   req.end();
 };
 
-// 该方法被循环调用,请求图片数据
-const fileUpdate = (imgPath, obj) => {
-  let newImgPath;
-  if (isOverwrite) {
-    newImgPath = imgPath;
-  } else {
-    const outputDir = path.join(cwd, "output");
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir);
-    }
-
-    // TODO 当前 imgPath 存在时，如何处理
-    newImgPath = path.join(cwd, "output", path.basename(imgPath));
-  }
-
-  let options = new URL(obj.output.url);
-
+const getCompressedFile = (options, newImgPath, obj) => {
   const req = https.request(options, (res) => {
     let body = "";
     res.setEncoding("binary");
@@ -127,6 +126,26 @@ const fileUpdate = (imgPath, obj) => {
     console.error(e);
   });
   req.end();
+};
+
+// 该方法被循环调用,请求图片数据
+const fileUpdate = (imgPath, obj) => {
+  let newImgPath;
+  if (isOverwrite) {
+    newImgPath = imgPath;
+  } else {
+    const outputDir = path.join(cwd, "output");
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir);
+    }
+
+    // TODO 当前 imgPath 存在时，如何处理
+    newImgPath = path.join(cwd, "output", path.basename(imgPath));
+  }
+
+
+  let options = new URL(obj.output.url);
+  getCompressedFile(options, newImgPath, obj);
 };
 
 getFileList(root);
