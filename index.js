@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import inquirer from 'inquirer';
 import { startCompress } from './compress.js';
 import { mb2b } from './utils.js';

@@ -2,6 +2,7 @@
   "name": "tinypng-command-tool",
   "version": "0.1.2",
   "description": "Use tinypng to compress local images",
+  "type": "module",
   "main": "index.js",
   "bin": {
     "tpc": "index.js"
@@ -16,7 +17,6 @@
   "keywords": [
     "tinypng",
     "compress",
-    "node",
     "images"
   ],
   "author": "nmsn <136696700@qq.com> (https://blog.nmsn.site/)",
@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/nmsn/tinypng-command-tool#readme",
   "dependencies": {
-    "commander": "^8.0.0",
     "inquirer": "^8.1.2"
   }
 }
