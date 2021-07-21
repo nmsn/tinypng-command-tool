@@ -1,6 +1,6 @@
 {
   "name": "tinypng-command-tool",
-  "version": "0.1.2",
+  "version": "0.1.2-alpha",
   "description": "Use tinypng to compress local images",
   "type": "module",
   "main": "index.js",
