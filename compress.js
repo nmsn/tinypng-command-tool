@@ -1,8 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import https from 'https';
-import { URL } from 'url';
+import fs from "fs";
+import path from "path";
+import https from "https";
+import { URL } from "url";
 import { getRandomIP } from "./utils.js";
+import ora from "ora";
 
 const defaultOptions = {
   method: "POST",
@@ -58,12 +59,17 @@ const filterFile = (filePath) => {
 // {"error":"Bad request","message":"Request is invalid"}
 // {"input": { "size": 887, "type": "image/png" },"output": { "size": 785, "type": "image/png", "width": 81, "height": 81, "ratio": 0.885, "url": "https://tinypng.com/web/output/7aztz90nq5p9545zch8gjzqg5ubdatd6" }}
 const uploadFile = (imgPath, options) => {
+  const spinner = ora("Uploading").start();
   const req = https.request(options, function (res) {
     res.on("data", (buf) => {
       let obj = JSON.parse(buf.toString());
       if (obj.error) {
-        console.log(`[${imgPath}]：压缩失败！报错：${obj.message}`);
+        // TODO
+        spinner.fail(`[${imgPath}]: 压缩失败！报错: ${obj.message}`);
       } else {
+        spinner.succeed(
+          `[${imgPath}] \n 上传成功，原始大小: ${obj.input.size}B`,
+        );
         fileUpdate(imgPath, obj);
       }
     });
@@ -71,6 +77,7 @@ const uploadFile = (imgPath, options) => {
 
   req.write(fs.readFileSync(imgPath), "binary");
   req.on("error", (e) => {
+    spinner.fail(`Failed: ${e}`);
     console.error(e);
   });
   req.end();
@@ -78,6 +85,7 @@ const uploadFile = (imgPath, options) => {
 
 const getCompressedFile = (newImgPath, obj) => {
   const options = new URL(obj.output.url);
+  const spinner = ora("Downloading").start();
   const req = https.request(options, (res) => {
     let body = "";
     res.setEncoding("binary");
@@ -87,15 +95,20 @@ const getCompressedFile = (newImgPath, obj) => {
 
     res.on("end", function () {
       fs.writeFile(newImgPath, body, "binary", (err) => {
-        if (err) return console.error(err);
-        console.log(
-          `[${newImgPath}] \n 压缩成功，原始大小-${obj.input.size}，压缩大小-${obj.output.size}，优化比例-${obj.output.ratio}`,
+        if (err) {
+          spinner.fail(`Failed: ${err}`);
+          return console.error(err);
+        }
+        spinner.succeed(
+          `[${newImgPath}] \n 压缩成功，压缩大小: ${
+            obj.output.size
+          }B，优化比例: ${obj.output.ratio * 100}%`,
         );
       });
     });
   });
   req.on("error", (e) => {
-    console.error(e);
+    spinner.fail(`Failed: ${e}`);
   });
   req.end();
 };

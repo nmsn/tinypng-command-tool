@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/nmsn/tinypng-command-tool#readme",
   "dependencies": {
-    "inquirer": "^8.1.2"
+    "inquirer": "^8.1.2",
+    "ora": "^5.4.1"
   }
 }
