@@ -1,9 +1,8 @@
-const fs = require("fs");
-const path = require("path");
-const https = require("https");
-const { URL } = require("url");
-
-const { getRandomIP } = require('./utils.js');
+import fs from 'fs';
+import path from 'path';
+import https from 'https';
+import { URL } from 'url';
+import { getRandomIP } from "./utils.js";
 
 const defaultOptions = {
   method: "POST",
@@ -19,7 +18,7 @@ const defaultOptions = {
   },
 };
 
-const startCompress = (folder) => {
+export const startCompress = (folder) => {
   fs.readdir(folder, (err, files) => {
     if (err) console.error(err);
     files.forEach((file) => {
@@ -113,8 +112,4 @@ const getSavePath = (imgPath) => {
 const fileUpdate = (imgPath, obj) => {
   const newImgPath = getSavePath(imgPath, global.isOverwrite);
   getCompressedFile(newImgPath, obj);
-};
-
-module.exports = {
-  startCompress,
 };
