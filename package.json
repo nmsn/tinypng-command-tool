@@ -2,13 +2,14 @@
   "name": "tinypng-command-tool",
   "version": "0.1.2-alpha",
   "description": "Use tinypng to compress local images",
-  "type": "module",
   "main": "index.js",
   "bin": {
     "tpc": "index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "lint-staged": "lint-staged",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -28,5 +29,18 @@
   "dependencies": {
     "inquirer": "^8.1.2",
     "ora": "^5.4.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.31.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-jest": "^24.4.0",
+    "husky": "^7.0.1",
+    "jest": "^27.0.6",
+    "lint-staged": "^11.0.1",
+    "prettier": "2.3.2"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.{js,css,md}": "prettier --write"
   }
 }
