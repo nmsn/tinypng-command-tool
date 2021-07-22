@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-const inquirer = require("inquirer");
-const { startCompress } = require("./compress.js");
-const { mb2b } = require("./utils.js");
-
+const inquirer = require('inquirer');
+const { startCompress } = require('./compress');
+const { mb2b } = require('./utils');
 // 获取命令执行路径
 const cwd = process.cwd();
 
@@ -12,67 +11,66 @@ const DEFAULT_SIZE = 5;
 inquirer
   .prompt([
     {
-      type: "checkbox",
-      message: "Select image format",
-      name: "ext",
-      default: [".jpg", ".jpeg", ".png"],
+      type: 'checkbox',
+      message: 'Select image format',
+      name: 'ext',
+      default: ['.jpg', '.jpeg', '.png'],
       choices: [
         {
-          name: ".jpg",
+          name: '.jpg',
         },
         {
-          name: ".jpeg",
+          name: '.jpeg',
         },
         {
-          name: ".png",
+          name: '.png',
         },
         {
-          name: ".bmp",
+          name: '.bmp',
         },
         {
-          name: ".webp",
+          name: '.webp',
         },
       ],
       validate(answer) {
         if (answer.length < 1) {
-          return "You must choose at least one image format.";
+          return 'You must choose at least one image format.';
         }
 
         return true;
       },
     },
     {
-      type: "input",
-      name: "maxSize",
-      message: "Input image max size (MB).",
+      type: 'input',
+      name: 'maxSize',
+      message: 'Input image max size (MB).',
       default() {
         return DEFAULT_SIZE;
       },
       validate(value = DEFAULT_SIZE) {
-        const pass =
-          value.toString().match(/^[1-9]{1,}\d*$/) && value <= DEFAULT_SIZE;
+        const pass = value.toString().match(/^[1-9]{1,}\d*$/) && value <= DEFAULT_SIZE;
         if (pass) {
           return true;
         }
 
-        return "Please enter a valid max size";
+        return 'Please enter a valid max size';
       },
     },
 
     {
-      type: "confirm",
-      name: "isOverwrite",
-      message: "Whether to overwrite the source file?",
+      type: 'confirm',
+      name: 'isOverwrite',
+      message: 'Whether to overwrite the source file?',
       default: false,
     },
     {
-      type: "confirm",
-      name: "isRecursion",
-      message: "Whether recursion?",
+      type: 'confirm',
+      name: 'isRecursion',
+      message: 'Whether recursion?',
       default: false,
     },
   ])
-  .then((answers) => {
+  .then(answers => {
     const { ext, maxSize, isOverwrite, isRecursion } = answers;
 
     // TODO 不想使用透传，所以将参数设置为全局变量
