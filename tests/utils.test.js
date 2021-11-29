@@ -1,4 +1,4 @@
-const { getRandomIP, mb2b } = require('../utils');
+import { getRandomIP, mb2b } from '../utils';
 
 test('mb2b(1) to 1 * 1024 * 1024', () => {
   expect(mb2b(1)).toBe(1 * 1024 * 1024);

@@ -1,9 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-const https = require('https');
-const { URL } = require('url');
-const ora = require('ora');
-const { getRandomIP } = require('./utils');
+import fs from 'fs';
+import path from 'path';
+import https from 'https';
+import { URL } from 'url';
+import ora from 'ora';
+import { getRandomIP } from './utils.js';
 
 const defaultOptions = {
   method: 'POST',
@@ -49,9 +49,8 @@ const getCompressedFile = (newImgPath, obj) => {
   req.end();
 };
 
-const isSuitableFile = (stats, filePath) => (
-  stats.isFile() && stats.size <= global.maxSize && global.ext.includes(path.extname(filePath))
-);
+const isSuitableFile = (stats, filePath) =>
+  stats.isFile() && stats.size <= global.maxSize && global.ext.includes(path.extname(filePath));
 
 const getSavePath = imgPath => {
   if (global.isOverwrite) {
@@ -105,7 +104,7 @@ const filterFile = filePath => {
   });
 };
 
-const startCompress = folder => {
+export const startCompress = folder => {
   fs.readdir(folder, (err, files) => {
     if (err) console.error(err);
     files.forEach(file => {
@@ -121,6 +120,6 @@ const startCompress = folder => {
   });
 };
 
-module.exports = {
-  startCompress,
-};
+// module.exports = {
+//   startCompress,
+// };
