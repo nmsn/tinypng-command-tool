@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import inquirer from 'inquirer';
-import { startCompress } from './compress.js';
-import { mb2b } from './utils.js';
+import { startCompress } from './compress';
+import { mb2b } from './utils';
 
 // 获取命令执行路径
 const cwd = process.cwd();

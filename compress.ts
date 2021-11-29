@@ -1,9 +1,33 @@
-import fs from 'fs';
-import path from 'path';
-import https from 'https';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as https from 'https';
+import * as ora from 'ora';
 import { URL } from 'url';
-import ora from 'ora';
-import { getRandomIP } from './utils.js';
+import { getRandomIP } from './utils';
+
+// 异步API,压缩图片
+// {"input": { "size": 887, "type": "image/png" },"output": { "size": 785, "type": "image/png", "width": 81, "height": 81, "ratio": 0.885, "url": "https://tinypng.com/web/output/7aztz90nq5p9545zch8gjzqg5ubdatd6" }}
+interface ResFileProps {
+  input: {
+    size: number;
+    type: string;
+  };
+  output: {
+    size: number;
+    type: string;
+    width: string;
+    height: number;
+    ratio: number;
+    url: string;
+  };
+}
+// {"error":"Bad request","message":"Request is invalid"}
+interface ResErrProps {
+  error: string;
+  message: string;
+}
+
+type ResProps = ResFileProps | ResErrProps;
 
 const defaultOptions = {
   method: 'POST',
@@ -19,8 +43,8 @@ const defaultOptions = {
   },
 };
 
-const getCompressedFile = (newImgPath, obj) => {
-  const options = new URL(obj.output.url);
+const getCompressedFile = (newImgPath: string, file: ResFileProps) => {
+  const options = new URL(file.output.url);
   const spinner = ora('Downloading').start();
   const req = https.request(options, res => {
     let body = '';
@@ -36,8 +60,8 @@ const getCompressedFile = (newImgPath, obj) => {
           return console.error(err);
         }
         spinner.succeed(
-          `[${newImgPath}] \n 压缩成功，压缩大小: ${obj.output.size}B，优化比例: ${
-            obj.output.ratio * 100
+          `[${newImgPath}] \n 压缩成功，压缩大小: ${file.output.size}B，优化比例: ${
+            file.output.ratio * 100
           }%`,
         );
       });
@@ -49,10 +73,10 @@ const getCompressedFile = (newImgPath, obj) => {
   req.end();
 };
 
-const isSuitableFile = (stats, filePath) =>
+const isSuitableFile = (stats: fs.Stats, filePath: string) =>
   stats.isFile() && stats.size <= global.maxSize && global.ext.includes(path.extname(filePath));
 
-const getSavePath = imgPath => {
+const getSavePath = (imgPath: string) => {
   if (global.isOverwrite) {
     return imgPath;
   }
@@ -61,21 +85,18 @@ const getSavePath = imgPath => {
   return imgPath.replace(filename, `${filename}-compressed`);
 };
 
-const fileUpdate = (imgPath, obj) => {
-  const newImgPath = getSavePath(imgPath, global.isOverwrite);
-  getCompressedFile(newImgPath, obj);
+const fileUpdate = (imgPath: string, file: ResFileProps) => {
+  const newImgPath = getSavePath(imgPath);
+  getCompressedFile(newImgPath, file);
 };
 
-// 异步API,压缩图片
-// {"error":"Bad request","message":"Request is invalid"}
-// {"input": { "size": 887, "type": "image/png" },"output": { "size": 785, "type": "image/png", "width": 81, "height": 81, "ratio": 0.885, "url": "https://tinypng.com/web/output/7aztz90nq5p9545zch8gjzqg5ubdatd6" }}
-const uploadFile = (imgPath, options) => {
+const uploadFile = (imgPath: string, options) => {
   const spinner = ora('Uploading').start();
   const req = https.request(options, res => {
     res.on('data', buf => {
-      const obj = JSON.parse(buf.toString());
-      if (obj.error) {
-        // TODO
+      const obj: ResProps = JSON.parse(buf.toString());
+
+      if ('error' in obj) {
         spinner.fail(`[${imgPath}]: 压缩失败！报错: ${obj.message}`);
       } else {
         spinner.succeed(`[${imgPath}] \n 上传成功，原始大小: ${obj.input.size}B`);
@@ -92,7 +113,7 @@ const uploadFile = (imgPath, options) => {
   req.end();
 };
 
-const filterFile = filePath => {
+const filterFile = (filePath: string) => {
   fs.stat(filePath, (err, stats) => {
     if (err) return console.error(err);
     if (isSuitableFile(stats, filePath)) {
@@ -104,7 +125,7 @@ const filterFile = filePath => {
   });
 };
 
-export const startCompress = folder => {
+export const startCompress = (folder: string) => {
   fs.readdir(folder, (err, files) => {
     if (err) console.error(err);
     files.forEach(file => {
@@ -119,7 +140,3 @@ export const startCompress = folder => {
     });
   });
 };
-
-// module.exports = {
-//   startCompress,
-// };
