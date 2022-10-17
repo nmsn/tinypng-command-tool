@@ -49,11 +49,6 @@ npm i tinypng-command-tool -g
 tpc
 ```
 
-## 相关项目
-
-[zhanyuzhang/super-tinypng](https://github.com/zhanyuzhang/super-tinypng)
-
-
 ## 项目负责人
 
 nmsn
